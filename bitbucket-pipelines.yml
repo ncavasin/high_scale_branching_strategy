@@ -17,8 +17,8 @@ definitions:
           - echo "Sonarqube analysis goes here."
 
 
-    - step: &test
-        name: "Test step for Java Apps"
+    - step: &unitTesting
+        name: "Unit testing step for Java Apps"
         oidc: true
         image:
           name: 250412402401.dkr.ecr.us-east-1.amazonaws.com/consorcio-python-node-sls-git-ssh-ubuntu
@@ -116,7 +116,7 @@ pipelines:
       - step:
           <<: *staticAnalysis
       - step:
-          <<: *test
+          <<: *unitTesting
       - step:
           <<: *compile
 
@@ -124,7 +124,7 @@ pipelines:
       - step:
           <<: *staticAnalysis
       - step:
-          <<: *test
+          <<: *unitTesting
       - step:
           <<: *compile
 
@@ -132,7 +132,7 @@ pipelines:
       - step:
           <<: *staticAnalysis
       - step:
-          <<: *test
+          <<: *unitTesting
       - step:
           <<: *compile
 
@@ -140,7 +140,7 @@ pipelines:
       - step:
           <<: *staticAnalysis
       - step:
-          <<: *test
+          <<: *unitTesting
       - step:
           <<: *compile
 
@@ -148,7 +148,7 @@ pipelines:
       - step:
           <<: *staticAnalysis
       - step:
-          <<: *test
+          <<: *unitTesting
       - step:
           <<: *compile
 
@@ -156,6 +156,6 @@ pipelines:
       - step:
           <<: *staticAnalysis
       - step:
-          <<: *test
+          <<: *unitTesting
       - step:
           <<: *compile
