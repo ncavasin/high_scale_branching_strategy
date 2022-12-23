@@ -1,0 +1,161 @@
+definitions:
+  steps:
+    - step: &staticAnalysis
+        name: "Sonarqube step for Java Apps"
+        oidc: true
+        image:
+          name: 250412402401.dkr.ecr.us-east-1.amazonaws.com/consorcio-python-node-sls-git-ssh-ubuntu
+          aws:
+            oidc-role: arn:aws:iam::250412402401:role/BitBucketOpenIDConnect
+        runs-on:
+          - 'aws'
+          - 'self.hosted'
+          - 'linux'
+        script:
+          # Show role is base ec2 runnerr
+          - echo $(aws sts get-caller-identity)
+          - echo "Sonarqube analysis goes here."
+
+
+    - step: &test
+        name: "Test step for Java Apps"
+        oidc: true
+        image:
+          name: 250412402401.dkr.ecr.us-east-1.amazonaws.com/consorcio-python-node-sls-git-ssh-ubuntu
+          aws:
+            oidc-role: arn:aws:iam::250412402401:role/BitBucketOpenIDConnect
+        runs-on:
+          - 'aws'
+          - 'self.hosted'
+          - 'linux'
+        script:
+          # Show role is base ec2 runnerr
+          - echo $(aws sts get-caller-identity)
+          - echo "Unit testing goes here"
+
+    - step: &compile
+        name: "Compile step for Java Apps"
+        oidc: true
+        image:
+          name: 250412402401.dkr.ecr.us-east-1.amazonaws.com/consorcio-python-node-sls-git-ssh-ubuntu
+          aws:
+            oidc-role: arn:aws:iam::250412402401:role/BitBucketOpenIDConnect
+        runs-on:
+          - 'aws'
+          - 'self.hosted'
+          - 'linux'
+        services:
+          - docker
+        artifacts:
+          - "**.jar"
+        script:
+          # Show role is base ec2 runnerr
+          - echo $(aws sts get-caller-identity)
+          - echo "'mvn clean package' goes here"
+
+    - step: &pushToEcr
+        name: "Push to ECR for Java Apps"
+        oidc: true
+        image:
+          name: 250412402401.dkr.ecr.us-east-1.amazonaws.com/consorcio-python-node-sls-git-ssh-ubuntu
+          aws:
+            oidc-role: arn:aws:iam::250412402401:role/BitBucketOpenIDConnect
+        runs-on:
+          - 'aws'
+          - 'self.hosted'
+          - 'linux'
+        script:
+          # Show role is base ec2 runnerr
+          - echo $(aws sts get-caller-identity)
+          - echo "Push to ECR goes here"
+
+    - step: &deploy
+        name: "Deploy step for Java Apps"
+        oidc: true
+        image:
+          name: 250412402401.dkr.ecr.us-east-1.amazonaws.com/consorcio-python-node-sls-git-ssh-ubuntu
+          aws:
+            oidc-role: arn:aws:iam::250412402401:role/BitBucketOpenIDConnect
+        runs-on:
+          - 'aws'
+          - 'self.hosted'
+          - 'linux'
+        script:
+          # Show role is base ec2 runnerr
+          - echo "'kubectl apply -f deploy_manifest.yml' goes here"
+
+
+pipelines:
+  branches:
+    develop:
+      - step:
+          <<: *compile
+      - step:
+          <<: *pushToEcr
+      - step:
+          <<: *deploy
+
+    release:
+      - step:
+          <<: *compile
+      - step:
+          <<: *pushToEcr
+      - step:
+          <<: *deploy
+
+    master:
+      - step:
+          <<: *compile
+      - step:
+          <<: *pushToEcr
+      - step:
+          <<: *deploy
+
+  pull-requests:
+    develop:
+      - step:
+          <<: *staticAnalysis
+      - step:
+          <<: *test
+      - step:
+          <<: *compile
+
+    release:
+      - step:
+          <<: *staticAnalysis
+      - step:
+          <<: *test
+      - step:
+          <<: *compile
+
+    master:
+      - step:
+          <<: *staticAnalysis
+      - step:
+          <<: *test
+      - step:
+          <<: *compile
+
+    feature/**:
+      - step:
+          <<: *staticAnalysis
+      - step:
+          <<: *test
+      - step:
+          <<: *compile
+
+    bugfix/**:
+      - step:
+          <<: *staticAnalysis
+      - step:
+          <<: *test
+      - step:
+          <<: *compile
+
+    hotfix/**:
+      - step:
+          <<: *staticAnalysis
+      - step:
+          <<: *test
+      - step:
+          <<: *compile
