@@ -1,16 +1,14 @@
 definitions:
   steps:
     - step: &staticAnalysis
-        name: "Sonarqube step for Java Apps"
+        name: "Sonarqube step"
         oidc: true
         image: sonarqube:lts
         script:
-          # Show role is base ec2 runnerr
-          - echo $(aws sts get-caller-identity)
           - echo "Sonarqube analysis goes here."
 
     - step: &unitTesting
-        name: "Unit testing step for Java Apps"
+        name: "Unit testing step"
         oidc: true
         image: maven:3.8.3-openjdk-17
         script:
@@ -19,36 +17,54 @@ definitions:
           - echo "Unit testing goes here"
 
     - step: &compile
-        name: "Compilation step for Java Apps"
+        name: "Compilation step"
         image: maven:3.8.3-openjdk-17
         artifacts:
           - "**.jar"
         script:
           - echo "'mvn clean package' goes here"
 
-
-    - step: &containerize
-      name: "Containerization step for Java Apps"
-      image: maven:3.8.3-openjdk-17
-      services:
-        - docker
-      script:
-        - echo "docker containerization goes here"
+    - step: &containerization
+        name: "Containerization step"
+        image: maven:3.8.3-openjdk-17
+        services:
+          - docker
+        script:
+          - echo "Docker containerization goes here"
 
     - step: &pushToCodeArtifact
-        name: "Push to code artifact step for Java Apps"
+        name: "Push to code artifact step"
         image: maven:3.8.3-openjdk-17
         script:
-          - echo "push of container to AWS CodeArtifact goes here"
+          - echo "Push of container to AWS CodeArtifact goes here"
 
     - step: &deploy
-        name: "Deploy step for Java Apps"
+        name: "Deploy step"
         oidc: true
         image: bitnami/kubectl:latest
         script:
-          # Show role is base ec2 runnerr
           - echo "AWS EKS deployment goes here"
 
+    - step: &postDeployCheck
+        name: "Post deploy check step"
+        oidc: true
+        image: bitnami/kubectl:latest
+        script:
+          - echo "Post-deploy check goes here"
+
+    - step: &downstreamDevelop
+        name: "Downstream to develop branch step"
+        oidc: true
+        image: bitnami/kubectl:latest
+        script:
+          - echo "Downstream to develop goes here"
+
+    - step: &downstreamRelease
+        name: "Downstream to release branch step"
+        oidc: true
+        image: bitnami/kubectl:latest
+        script:
+          - echo "Downstream to release goes here"
 
 pipelines:
   branches:
@@ -56,7 +72,7 @@ pipelines:
       - step:
           <<: *compile
       - step:
-          <<: *containerize
+          <<: *containerization
       - step:
           <<: *pushToCodeArtifact
       - step:
@@ -66,21 +82,31 @@ pipelines:
       - step:
           <<: *compile
       - step:
-          <<: *containerize
+          <<: *containerization
       - step:
           <<: *pushToCodeArtifact
       - step:
           <<: *deploy
+      - step:
+          <<: *postDeployCheck
+      - step:
+          <<: *downstreamDevelop
 
     master:
       - step:
           <<: *compile
       - step:
-          <<: *containerize
+          <<: *containerization
       - step:
           <<: *pushToCodeArtifact
       - step:
           <<: *deploy
+      - step:
+          <<: *postDeployCheck
+      - step:
+          <<: *downstreamRelease
+      - step:
+          <<: *downstreamDevelop
 
   pull-requests:
     develop:
