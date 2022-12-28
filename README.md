@@ -12,7 +12,7 @@ On top of them, we add these temporal branches which will eventually be merged t
 - **hotfix/\*\***: to fix bugs found on productive environment.
 
 
-![Branching strategy picture](./imgs/branching_stategy.png "Branching strategy")
+<img src="https://bitbucket.org/cavasinnicolas/gitflow/raw/554702b8f88f43da1b320b97041c45973a41b4ae/imgs/branching_strategy.png" alt="Branching strategy" width="10" height="10;"/>
 
 
 # REVISAR INI
@@ -89,6 +89,7 @@ As restrictive as possible. Only a specific group of members (team leader or sen
 **Stage 1**: promote testing environment to productive environment.
 
 Create a Pull-Request from stable branch ``release``against ``master`` branch to trigger its pipeline.
+
 - On pipe success, assign a reviewer and wait for the PR to be approved and merged.
 
     - ``master`` branch semver tagging will be automated.
@@ -113,7 +114,7 @@ Create a Pull-Request from temporal branch ``hotfix/**`` against ``master`` bran
 
 ***Every executed pipeline will add a comment in its Pull-Request per each executed step as a status report.***
 
-![Branching strategy timeline](./imgs/branching_stategy-timeline.png "Branching strategy timeline")
+<img src="https://bitbucket.org/cavasinnicolas/gitflow/raw/554702b8f88f43da1b320b97041c45973a41b4ae/imgs/branching_strategy-timeline.png" alt="Branching strategy timeline" width="10" height="10;"/>
 
 
 ## Branch protection rules
