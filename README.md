@@ -4,57 +4,66 @@ We propose the following three environments to achieve a fully-automated CICD fl
 - **release**: testing environment.
 - **master**: productive environment.
 
-On top of them, we propose these temporal branches which will be merged to their proper environment:
+On top of them, we add these temporal branches which will eventually be merged to their proper environment:
 - **feature/\*\***: to develop new features branched from release environment (less bug-prone).
 - **bugfix/\*\***: to fix bugs found on release environment.
 - **hotfix/\*\***: to fix bugs found on productive environment.
----
+
 ### Behavior
 ##### Development environment
-**Stage 1:** integrate new feature to development environment.
-Create a Pull-Request from temporal branch ``feature/XYZ`` against ``develop`` environment to trigger its pipeline.
-- On pipe success approve and merge Pull-Request withou any code-review nor approval (speed-up integration process).
-- On pipe failure fix errors/bugs and restart process.
 
-**Stage 2**: promote feature to release environment.    
-Create a Pull-Request from temporal branch ``feature/XYZ`` against ``release`` environment to trigger its pipeline.
-- On pipe success, assign a reviewer and wait for him to approve and merge the new feature.
-    - ``release`` environment semver tagging will be automated.
-- On pipe failure, fix error/bugs and restart process from **Stage 1**.
+**Stage 1:** integrate new feature to development environment.
+Create a Pull-Request from temporal branch ``feature/**`` against ``develop`` branch to trigger its pipeline.
+- On pipe success approve and merge Pull-Request withou any code-review nor approval (speed-up integration process).
+- On pipe failure fix errors/bugs and restart process. Merge won't be available.
 
 ##### Release environment
+**Stage 1**: promote feature to testing environment.    
+Create a Pull-Request from temporal branch ``feature/**`` against ``release`` branch to trigger its pipeline.
+- On pipe success, assign a reviewer and wait for the PR to be apprvoed and merged.
+    - ``release`` branch semver tagging will be automated.
+- On pipe failure, fix error/bugs and restart process. Merge won't be available.
 
-1. Opción A: pasaje de bugfix/** a release/stable vía PR para disparar el pipeline de release/stable.
-    - Si el pipeline se ejecuta exitosamente se requiere Code Review + approval para mergear.
-        - Se automatiza el tagging del ambiente de release/stable.
-        - Se automatiza el merge del bugfix a Develop.
-    - Si el pipeline falla en alguno de sus stages, no se permite el merge a release/stable (restricción desde el repo) porque se debe ajustar código y se reinicia el proceso.
-
-2. Opción B: pasaje de release/stable a master vía PR para disparar el pipe de master.
-    - Si el pipeline se ejecuta exitosamente se requiere Code Review + approval para mergear.
-        - Se automatiza el tagging del ambiente de Producción.
-        - Si el pipeline falla en alguno de sus stages = ajustar código y reiniciar proceso.
-
-> Nota aclaratoria: para el caso de ramas release/**, se podrá manejar "más de una rama" que permita disponibilizar diferentes release candidates. No obstante, siempre existirá un ambiente de release estable, llamado release/stable, sobre el cuál se permite realizar QA y al cuál el merge_handler apuntará al momento de realizar un merge.
+**Stage 2**: integrate bugfix to testing environment.
+Create a Pull-Request from temporal branch ``bugfix/**``against ``release`` branch to trigger its pipeline.
+- On pipe success, assign a reviewer and wait for the PR to be approved and merged.
+    - ``master`` branch semver tagging will be automated.
+    - Downstream push of ``bugfix/**`` to ``develop`` branch will be automated. No pipe will be executed.
+    - ``bugfix/**`` branch deletion will be automated.
+- On pipe failure, fix error/bugs and restart process. Merge won't be available.
 
 ##### Productive environment
-1. Pasaje de hotfix/** a master vía PR para disparar el pipeline de master.
-    - Si el pipeline se ejecuta exitosamente se requiere Code Review + approval para mergear.
-    - Se automatiza el tagging del ambiente de Producción.
-     - Se automatiza el merge del hotfix a Release y a Develop.
-     - Si el pipeline falla en alguno de sus stages, no se permite el merge a Master (restricción desde el repo) porque se debe ajustar código y reiniciar el proceso.
+**Stage 1**: promote feature to production environment.
+Create a Pull-Request from temporal branch ``feature/**``against ``master`` branch to trigger its pipeline.
+- On pipe success, assign a reviewer and wait for the PR to be approved and merged.
+    - ``master`` branch semver tagging will be automated.
+    - ``feature/**`` branch deletion will be automated.
+- On pipe failure, fix error/bugs and restart process. Merge won't be available.
 
-Todos los pipelines agregarán un reporte a modo comentario en la PR correspondiente para indicar el resultado de cada stage atravesado.
+**Stage 2**: integrate bugfix to production environment.
+Create a Pull-Request from temporal branch ``hotfix/**`` against ``master`` branch to trigger its pipeline.
+- On pipe success, assign a reviewer and wait for the PR to be approved and merged.
+    - ``master`` branch semver tagging will be automated.
+    - Downstream push of ``hotfix/**`` to ``release`` branch will be automated. No pipe will be executed.
+    - Downstream push of ``hotfix/**`` to ``develop`` branch will be automated. No pipe will be executed.
+    - ``hotfix/**`` branch deletion will be automated.
+- On pipe failure, fix error/bugs and restart process. Merge won't be available.
 
-### Protección de ramas y Pull Requests:
-- No se permite commitear ni mergear a las ramas base por definición (develop, release, master).
-- No se permite el merge a ningún ambiente si el pipeline no finalizó con un resultado exitoso.
- - Todos los pasos a dichas ramas se realizan a través de Pull-Requests:
-    - Si hay merge conflicts se denotan en el PR hacia la rama destino.
-    - Si falla el PR hacia destino, agregar comentario del error/es e la ejecución en el PR (comment PR). Ajustar a API Bitbucket tomando error de pipeline (get exit status → api bb). Armar un script en python que actualice PR.
-- Se debe realizar aprobación de la siguiente manera:
-    - Develop de forma automática si pasa la revisión del pipeline (merge automático)
-    - Release y Master -> se ejecuta pipeline y se debe aprobar "manual". (merge manual, en base a un analista funcional [persona humana])
+> Every executed pipeline will add a comment in the PR per each executed step as a status report.
 
+### Branch protection rules
+- All three stable branches -``develop``, ``release`` & ``master``- will be protected against write access. 
+- The only way to modify these branches will be via Pull-Requests as explained above.
+- Pull-Requests against ``develop`` branch will be mergeable only when:
+    - Pipeline's execution has been successful.
+    - Any user has approved it.
+- Pull-Requests against ``release`` and ``master`` branches will be mergeable only when:
+    - Pipeline execution's been successful.
+    - Any reviewer has approved it.
 
-
+### About merge conflicts
+If there's a merge conflict, follow this steps:
+1. *Locally*, open another temporal branch branched off the highest possible stable environment.
+2. *Locally*, merge to that new branch the content of the branch that created the conflict.
+3. Push the branch with the solved conflict to the remote git repository.
+4. Open a new Pull-Request against same environment using the conflict-solver branch.
