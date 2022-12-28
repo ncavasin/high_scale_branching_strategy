@@ -21,12 +21,25 @@ definitions:
     - step: &compile
         name: "Compilation step for Java Apps"
         image: maven:3.8.3-openjdk-17
-        services:
-          - docker
         artifacts:
           - "**.jar"
         script:
           - echo "'mvn clean package' goes here"
+
+
+    - step: &containerize
+      name: "Containerization step for Java Apps"
+      image: maven:3.8.3-openjdk-17
+      services:
+        - docker
+      script:
+        - echo "docker containerization goes here"
+
+    - step: &pushToCodeArtifact
+        name: "Push to code artifact step for Java Apps"
+        image: maven:3.8.3-openjdk-17
+        script:
+          - echo "push of container to AWS CodeArtifact goes here"
 
     - step: &deploy
         name: "Deploy step for Java Apps"
@@ -34,7 +47,7 @@ definitions:
         image: bitnami/kubectl:latest
         script:
           # Show role is base ec2 runnerr
-          - echo "'kubectl apply -f deploy_manifest.yml' goes here"
+          - echo "AWS EKS deployment goes here"
 
 
 pipelines:
@@ -43,17 +56,29 @@ pipelines:
       - step:
           <<: *compile
       - step:
+          <<: *containerize
+      - step:
+          <<: *pushToCodeArtifact
+      - step:
           <<: *deploy
 
     release:
       - step:
           <<: *compile
       - step:
+          <<: *containerize
+      - step:
+          <<: *pushToCodeArtifact
+      - step:
           <<: *deploy
 
     master:
       - step:
           <<: *compile
+      - step:
+          <<: *containerize
+      - step:
+          <<: *pushToCodeArtifact
       - step:
           <<: *deploy
 
