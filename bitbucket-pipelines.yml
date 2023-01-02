@@ -59,7 +59,7 @@ definitions:
         script:
           - echo "Downstream to develop goes here"
 
-    - step: &downstreamRelease
+    - step: &downstreamSit
         name: "Downstream to release branch step"
         oidc: true
         image: bitnami/kubectl:latest
@@ -78,7 +78,7 @@ pipelines:
       - step:
           <<: *deploy
 
-    release:
+    sit:
       - step:
           <<: *compile
       - step:
@@ -104,7 +104,7 @@ pipelines:
       - step:
           <<: *postDeployCheck
       - step:
-          <<: *downstreamRelease
+          <<: *downstreamSit
       - step:
           <<: *downstreamDevelop
 
@@ -117,7 +117,7 @@ pipelines:
       - step:
           <<: *compile
 
-    release:
+    sit:
       - step:
           <<: *staticAnalysis
       - step:
