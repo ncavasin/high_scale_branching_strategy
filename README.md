@@ -2,7 +2,7 @@
 We propose the following three stable environments to achieve a fully-automated CICD flow:
 
 - **develop**: feature integration environment.
-- **release**: testing environment.
+- **sit**: manual and automated testing environment.
 - **master**: productive environment.
 
 On top of them, we add these temporal branches which will eventually be merged to their proper environment:
@@ -11,16 +11,14 @@ On top of them, we add these temporal branches which will eventually be merged t
 - **bugfix/\*\***: to fix bugs found on release environment.
 - **hotfix/\*\***: to fix bugs found on productive environment.
 
-
-<img src="https://bitbucket.org/cavasinnicolas/gitflow/raw/554702b8f88f43da1b320b97041c45973a41b4ae/imgs/branching_strategy.png" alt="Branching strategy" width="10" height="10;"/>
-
-
-# REVISAR INI
 Finally, we suggest another temporal, auxiliary and environment-less branch:
 
-- **staging**: feature bundling branch. Located before master branch. Once merged against, branches reach end-of-life and get deleted.
+- **release**: feature bundling branch. Used before merging against master branch. Once merged against, branches reach end-of-life and get deleted.
 
-# REVISAR FIN
+
+  <img src="https://bitbucket.org/cavasinnicolas/gitflow/raw/554702b8f88f43da1b320b97041c45973a41b4ae/imgs/branching_strategy.png" alt="Branching strategy" width="10" height="10;"/>
+
+
 
 ## Behavior
 
@@ -49,18 +47,18 @@ Create a Pull-Request from temporal branch ``feature/**`` against ``develop`` br
 
 ---
 
-### Release environment
+### Testing environment
 
 A bit more restricted. Only reviewers can approve a Pull-Request.
 
 
 **Stage 1**: promote a feature to testing environment.
 
-Create a Pull-Request from temporal branch ``feature/**`` against ``release`` branch to trigger its pipeline.
+Create a Pull-Request from temporal branch ``feature/**`` against ``sit`` branch to trigger its pipeline.
 
 - On pipe success, assign a reviewer and wait for the PR to be approved and merged.
 
-    - ``release`` branch semver tagging will be automated.
+    - ``sit`` branch semver tagging will be automated.
     - ``feature/**`` temporal branch deletion will be automated.
 
 - On pipe failure, fix error/bugs and restart process. Merge won't be available.
@@ -69,7 +67,7 @@ Create a Pull-Request from temporal branch ``feature/**`` against ``release`` br
 
 **Stage 2**: integrate a bugfix to testing environment.
 
-Create a Pull-Request from temporal branch ``bugfix/**``against ``release`` branch to trigger its pipeline.
+Create a Pull-Request from temporal branch ``bugfix/**``against ``sit`` branch to trigger its pipeline.
 
 - On pipe success, assign a reviewer and wait for the PR to be approved and merged.
 
@@ -79,7 +77,29 @@ Create a Pull-Request from temporal branch ``bugfix/**``against ``release`` bran
 
 - On pipe failure, fix error/bugs and restart process. Merge won't be available.
 
---- 
+---
+
+### Release
+
+- Not an environment.
+- Used only by QA team members.
+
+It's a **bundling branch** used to create a release per sprint. As restrictive as possible. Only a specific 
+group of members (team leader or senior devs) can approve Pull-Requests.
+
+
+**Unique Stage**: promote tested and stable features. 
+
+As soon as a feature's testing has been finished, QA member creates a Pull-Request from temporal branch
+``feature/**`` against ``release`` branch to trigger it's unique testing pipeline.
+
+- On pipe success 
+
+- On pipe failure
+
+---
+
+
 
 ### Productive environment
 
@@ -88,11 +108,11 @@ As restrictive as possible. Only a specific group of members (team leader or sen
 
 **Stage 1**: promote testing environment to productive environment.
 
-Create a Pull-Request from stable branch ``release``against ``master`` branch to trigger its pipeline.
+Create a Pull-Request from feature branch ``feature/**``against ``release`` branch to trigger its pipeline.
 
 - On pipe success, assign a reviewer and wait for the PR to be approved and merged.
 
-    - ``master`` branch semver tagging will be automated.
+    - ``release`` branch semver tagging will be automated with '-rc' suffix.
     - ``feature/**`` branch deletion will be automated.
 
 - On pipe failure, fix error/bugs and restart process. Merge won't be available.
@@ -138,3 +158,21 @@ If there's a merge conflict, follow this steps:
 2. *Locally*, merge to that new branch the content of the branch that generated the conflict.
 3. Push the branch with the solved conflict to the remote git repository.
 4. Open a new Pull-Request against same environment using the conflict-solver branch.
+
+
+
+## References
+
+[0] - [GitOps and GitFlow and GitHub Flow](https://elisabethirgens.github.io/notes/2021/06/gitops/)
+
+[1] - [GitOps](https://www.atlassian.com/git/tutorials/gitops)
+
+[2] - [Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)
+
+[3] - [GitHub flow](https://docs.github.com/en/get-started/quickstart/github-flow)
+
+[4] - [Trunk-based development](https://trunkbaseddevelopment.com/)
+
+[5] - [A successful Git branching model](https://nvie.com/posts/a-successful-git-branching-model/)
+
+[6] - [QA Test - What is DEV, SIT, UAT & PROD?](https://medium.com/@buttertechn/qa-testing-what-is-dev-sit-uat-prod-ac97965ce4f)
