@@ -32,7 +32,7 @@ Finally, the strategy suggests the use of an environment-less amd stable branch:
 - **release**: for bundling features and fixes together before they are merged into ``master`` branch. Generates a 
 new tag for each finished Sprint that includes all the new content from that Sprint.
 
-  <img src="https://bitbucket.org/cavasinnicolas/gitflow/raw/554702b8f88f43da1b320b97041c45973a41b4ae/imgs/branching_strategy.png" alt="Branching strategy" width="10" height="10;"/>
+  <img src="https://bitbucket.org/cavasinnicolas/gitflow/raw/cee38eaf98d3fdc2c02b51e3d7d6024112214d17/imgs/branching_strategy.png alt="Branching strategy" width="10" height="10;"/>
 
 
 Overall, this branching strategy provides a structured and organized approach for managing the development, testing, and
@@ -176,7 +176,7 @@ Any merge will trigger ``master``'s deploy pipeline:
     - ``master`` branch semver tagging will be automated.
 
   
-<img src="https://bitbucket.org/cavasinnicolas/gitflow/raw/554702b8f88f43da1b320b97041c45973a41b4ae/imgs/branching_strategy-demo.png" alt="Branching strategy demo" width="10" height="10;"/>
+<img src="https://bitbucket.org/cavasinnicolas/gitflow/raw/cee38eaf98d3fdc2c02b51e3d7d6024112214d17/imgs/branching_strategy-demo.png" alt="Branching strategy demo" width="10" height="10;"/>
 
 
 ## Branch protection rules
