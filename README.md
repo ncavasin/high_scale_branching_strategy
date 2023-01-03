@@ -32,15 +32,12 @@ Finally, the strategy suggests the use of an environment-less amd stable branch:
 - **release**: for bundling features and fixes together before they are merged into ``master`` branch. Generates a 
 new tag for each finished Sprint that includes all the new content from that Sprint.
 
-
 <img src="https://bitbucket.org/cavasinnicolas/gitflow/raw/422c42f1780ffe635fa88a7d1a61aaf9df96f080/imgs/branching_strategy.png" alt="Branching strategy" width="10" height="10;"/>
-
 
 Overall, this branching strategy provides a structured and organized approach for managing the development, testing, and
 deployment of software applications. It allows for a clear separation of concerns and encourages a focus on specific 
 tasks, while also providing mechanisms for testing and integrating changes before they go live. By using this strategy, 
 organizations can improve the quality and reliability of their software, and better meet the needs of their users.
-
 
 ## Branch usages and restrictions
 
