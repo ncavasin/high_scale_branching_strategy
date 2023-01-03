@@ -1,4 +1,4 @@
-# Branching strategy with semantic versioning
+# High scale systems' branching strategy with semantic versioning
 
 This branching strategy is a way to manage the development, testing, and deployment of software applications in a 
 coordinated and organized manner. It is particularly well-suited for medium to large-sized applications that have 
