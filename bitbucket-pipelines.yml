@@ -2,19 +2,15 @@ definitions:
   steps:
     - step: &staticAnalysis
         name: "Sonarqube step"
-        oidc: true
         image: sonarqube:lts
         script:
           - echo "Sonarqube analysis goes here."
 
     - step: &unitTesting
         name: "Unit testing step"
-        oidc: true
         image: maven:3.8.3-openjdk-17
         script:
-          # Show role is base ec2 runnerr
-          - echo $(aws sts get-caller-identity)
-          - echo "Unit testing goes here"
+          - echo "'mvn test' goes here"
 
     - step: &compile
         name: "Compilation step"
@@ -22,7 +18,25 @@ definitions:
         artifacts:
           - "**.jar"
         script:
-          - echo "'mvn clean package' goes here"
+          - echo "'mvn clean package -DskipTests=true' goes here"
+
+    - step: &tagDevelop
+        name: "Develop tagging step"
+        image: alpine/git
+        script:
+          - echo "commit hash id + timestamp git tag cmd goes here"
+
+    - step: &tagReleaseCandidate
+        name: "Release candidate tagging step"
+        image: alpine/git
+        script:
+          - echo "semver git tag cmd wit '-rc' suffix goes here"
+
+    - step: &tagSemver
+        name: "Semver tagging step"
+        image: alpine/git
+        script:
+          - echo "semver git tag cmd with suffix goes here"
 
     - step: &containerization
         name: "Containerization step"
@@ -34,35 +48,37 @@ definitions:
 
     - step: &pushToCodeArtifact
         name: "Push to code artifact step"
-        image: maven:3.8.3-openjdk-17
+        image: amazon/aws-cli
         script:
           - echo "Push of container to AWS CodeArtifact goes here"
 
     - step: &deploy
         name: "Deploy step"
-        oidc: true
         image: bitnami/kubectl:latest
         script:
           - echo "AWS EKS deployment goes here"
 
     - step: &postDeployCheck
         name: "Post deploy check step"
-        oidc: true
         image: bitnami/kubectl:latest
         script:
           - echo "Post-deploy check goes here"
 
     - step: &downstreamDevelop
         name: "Downstream to develop branch step"
-        oidc: true
-        image: bitnami/kubectl:latest
+        image: alpine/git
         script:
           - echo "Downstream to develop goes here"
 
     - step: &downstreamSit
+        name: "Downstream to sit branch step"
+        image: alpine/git
+        script:
+          - echo "Downstream to sit goes here"
+
+    - step: &downstreamRelease
         name: "Downstream to release branch step"
-        oidc: true
-        image: bitnami/kubectl:latest
+        image: alpine/git
         script:
           - echo "Downstream to release goes here"
 
@@ -74,15 +90,21 @@ pipelines:
       - step:
           <<: *containerization
       - step:
+          <<: *tagDevelop
+      - step:
           <<: *pushToCodeArtifact
       - step:
           <<: *deploy
+      - step:
+          <<: *postDeployCheck
 
     sit:
       - step:
           <<: *compile
       - step:
           <<: *containerization
+      - step:
+          <<: *tagSemver
       - step:
           <<: *pushToCodeArtifact
       - step:
@@ -92,11 +114,17 @@ pipelines:
       - step:
           <<: *downstreamDevelop
 
+    release:
+      - step:
+          <<: *tagReleaseCandidate
+
     master:
       - step:
           <<: *compile
       - step:
           <<: *containerization
+      - step:
+          <<: *tagSemver
       - step:
           <<: *pushToCodeArtifact
       - step:
@@ -105,6 +133,8 @@ pipelines:
           <<: *postDeployCheck
       - step:
           <<: *downstreamSit
+      - step:
+          <<: *downstreamRelease
       - step:
           <<: *downstreamDevelop
 
@@ -118,6 +148,14 @@ pipelines:
           <<: *compile
 
     sit:
+      - step:
+          <<: *staticAnalysis
+      - step:
+          <<: *unitTesting
+      - step:
+          <<: *compile
+
+    release:
       - step:
           <<: *staticAnalysis
       - step:
