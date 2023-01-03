@@ -177,9 +177,17 @@ Any merge will trigger ``master``'s deploy pipeline:
   - On pipe success, new testing version will be deployed to the environment.
     - ``master`` branch semver tagging will be automated.
 
-  
+---
+
+### Demoing the flow  
+
+Below is a diagram of how this strategy would work in every different situation. 
+
+Pay attention on where branched reach end-of-life as well as to when is ``release`` branch merged against ``master``.
+
 <img src="https://bitbucket.org/cavasinnicolas/gitflow/raw/cee38eaf98d3fdc2c02b51e3d7d6024112214d17/imgs/branching_strategy-demo.png" alt="Branching strategy demo" width="10" height="10;"/>
 
+---
 
 ## Branch protection rules
  
