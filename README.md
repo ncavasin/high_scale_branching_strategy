@@ -32,7 +32,7 @@ Finally, the strategy suggests the use of an environment-less amd stable branch:
 - **release**: for bundling features and fixes together before they are merged into ``master`` branch. Generates a 
 new tag for each finished Sprint that includes all the new content from that Sprint.
 
-<img src="https://bitbucket.org/cavasinnicolas/gitflow/raw/422c42f1780ffe635fa88a7d1a61aaf9df96f080/imgs/branching_strategy.png" alt="Branching strategy" width="10" height="10;"/>
+<img src="https://github.com/ncavasin/high_scale_branching_strategy/blob/4f0e82687ce5ccc535bcdd98e3e39b53d87603f0/imgs/branching_strategy-white_background.png" alt="Branching strategy"/>
 
 Overall, this branching strategy provides a structured and organized approach for managing the development, testing, and
 deployment of software applications. It allows for a clear separation of concerns and encourages a focus on specific 
@@ -182,7 +182,7 @@ Below is a diagram of how this strategy would work in every different situation.
 
 Pay attention on where branches reach end-of-life as well as to when is ``release`` branch merged against ``master``.
 
-<img src="https://bitbucket.org/cavasinnicolas/gitflow/raw/cee38eaf98d3fdc2c02b51e3d7d6024112214d17/imgs/branching_strategy-demo.png" alt="Branching strategy demo" width="10" height="10;"/>
+<img src="https://github.com/ncavasin/high_scale_branching_strategy/blob/4f0e82687ce5ccc535bcdd98e3e39b53d87603f0/imgs/branching_strategy-demo.png" alt="Branching strategy demo"/>
 
 ---
 
